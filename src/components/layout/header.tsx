@@ -16,7 +16,7 @@ export function Header({ title, subtitle }: HeaderProps) {
   const { theme, setTheme } = useTheme()
 
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between h-16 px-4 lg:px-6 border-b border-border/50 glass">
+    <header className="sticky top-0 z-50 flex items-center justify-between h-16 px-4 lg:px-6 border-b border-border/50 glass">
       <div className="flex items-center gap-3">
         <button
           onClick={toggleSidebar}
