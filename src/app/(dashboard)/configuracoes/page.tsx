@@ -118,7 +118,7 @@ export default function ConfiguracoesPage() {
               <Input
                 value={config.nome_casal ?? ''}
                 onChange={e => setConfig(p => ({ ...p, nome_casal: e.target.value }))}
-                placeholder="Ex: Wagner & Giovana"
+                placeholder="Ex: Wagner & Débora"
               />
             </div>
             <div className="space-y-1">

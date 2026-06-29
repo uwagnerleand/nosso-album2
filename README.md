@@ -81,7 +81,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anon
 SUPABASE_SERVICE_ROLE_KEY=sua_chave_service_role
 
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_COUPLE_NAME=Wagner & Giovana
+NEXT_PUBLIC_COUPLE_NAME=Wagner & Débora
 ```
 
 ### 6. Criar os dois usuários do casal
