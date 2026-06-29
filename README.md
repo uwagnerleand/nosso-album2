@@ -1,36 +1,204 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💑 Nosso Álbum — Álbum Digital do Casal
 
-## Getting Started
+> Um álbum digital privado, elegante e sincronizado para registrar, organizar e reviver cada memória do casal.
 
-First, run the development server:
+---
+
+## ✨ Funcionalidades
+
+| Página | Descrição |
+|--------|-----------|
+| 🏠 Tela Inicial | Landing page animada com glassmorphism |
+| 🔐 Login | Autenticação segura, recuperação de senha |
+| 📊 Dashboard | Contador em tempo real, stats, próxima data |
+| 📖 Nossa História | Editor de texto rico com prévia markdown |
+| ⏱️ Linha do Tempo | Timeline elegante por ano |
+| 🖼️ Galeria | Pinterest layout, lightbox, upload drag & drop |
+| 🎥 Vídeos | Player HTML5, galeria e upload |
+| 📍 Lugares | Lugares visitados com avaliação em estrelas |
+| ✈️ Viagens | Diário de viagens com fotos e datas |
+| 📅 Datas Especiais | Countdown para próximas datas |
+| 🎵 Playlist | Músicas com links Spotify/YouTube |
+| 💌 Cartas | Cartas privadas entre o casal |
+| 🎯 Metas | Bucket list com progresso e status |
+| ⭐ Favoritos | Memórias e fotos favoritas |
+| 🗓️ Calendário | Visão mensal de memórias e datas |
+| 📦 Cápsula do Tempo | Mensagens para abrir no futuro |
+| 💬 Mural | Post-its digitais entre o casal |
+| 👤 Perfil | Informações pessoais e foto |
+| ⚙️ Configurações | Tema, senha, backup JSON |
+| 📱 PWA | Instalável no celular como app nativo |
+
+---
+
+## 🛠️ Stack Tecnológica
+
+| Camada | Tecnologia |
+|--------|-----------|
+| Frontend | Next.js 16 (App Router), TypeScript |
+| Estilo | Tailwind CSS v4, Framer Motion |
+| Backend | Next.js API Routes + Supabase |
+| Banco de Dados | Supabase (PostgreSQL) |
+| Autenticação | Supabase Auth (JWT) |
+| Storage | Supabase Storage |
+| Estado Global | Zustand |
+| Data Fetching | TanStack Query |
+
+---
+
+## 🚀 Instalação
+
+### 1. Pré-requisitos
+
+- Node.js 18+
+- Conta gratuita no [Supabase](https://supabase.com)
+
+### 2. Instalar dependências
+
+```bash
+npm install
+```
+
+### 3. Criar projeto no Supabase
+
+1. Acesse [supabase.com](https://supabase.com) → **New Project**
+2. Aguarde a criação (~2 min)
+
+### 4. Criar o banco de dados
+
+1. No painel do Supabase → **SQL Editor** → **New Query**
+2. Cole todo o conteúdo de `supabase-schema.sql`
+3. Clique **Run** ▶️
+
+### 5. Configurar variáveis de ambiente
+
+Edite o arquivo `.env.local` na raiz:
+
+```env
+# Encontre em: Supabase → Settings → API
+NEXT_PUBLIC_SUPABASE_URL=https://SEU_PROJETO.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anon
+SUPABASE_SERVICE_ROLE_KEY=sua_chave_service_role
+
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_COUPLE_NAME=Wagner & Giovana
+```
+
+### 6. Criar os dois usuários do casal
+
+No Supabase → **Authentication** → **Users** → **Add User**
+
+Crie exatamente **2 usuários** com emails reais do casal.
+
+### 7. Rodar o projeto
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Acesse: **http://localhost:3000**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🌐 Deploy (Vercel — Gratuito)
 
-## Learn More
+```bash
+# Instalar Vercel CLI
+npm install -g vercel
 
-To learn more about Next.js, take a look at the following resources:
+# Fazer deploy
+vercel
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Após o deploy, no Supabase → **Authentication → URL Configuration**:
+- **Site URL**: `https://seu-site.vercel.app`
+- **Redirect URLs**: `https://seu-site.vercel.app/api/auth/callback`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 📁 Estrutura de Pastas
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+├── app/
+│   ├── (auth)/login/          # Tela de login
+│   ├── (dashboard)/           # Todas as páginas protegidas
+│   │   ├── layout.tsx         # Layout com sidebar
+│   │   ├── dashboard/         # Dashboard principal
+│   │   ├── galeria/           # Galeria de fotos
+│   │   ├── linha-do-tempo/    # Timeline
+│   │   ├── nossa-historia/    # Texto da história
+│   │   ├── videos/            # Galeria de vídeos
+│   │   ├── lugares/           # Lugares visitados
+│   │   ├── viagens/           # Registro de viagens
+│   │   ├── datas-especiais/   # Datas importantes
+│   │   ├── playlist/          # Músicas do casal
+│   │   ├── cartas/            # Cartas privadas
+│   │   ├── metas/             # Metas do casal
+│   │   ├── momentos-favoritos/
+│   │   ├── calendario/
+│   │   ├── capsula-do-tempo/
+│   │   ├── mural/
+│   │   ├── perfil/
+│   │   └── configuracoes/
+│   ├── api/auth/callback/     # OAuth callback
+│   └── page.tsx               # Landing page
+├── components/
+│   ├── layout/                # Sidebar, Header
+│   ├── features/              # UploadZone
+│   ├── ui/                    # Button, Input, Card, Avatar, Badge
+│   └── providers.tsx          # Theme + Query providers
+├── hooks/
+│   └── useTimeCounter.ts      # Contador em tempo real
+├── lib/
+│   ├── supabase/client.ts     # Cliente browser
+│   ├── supabase/server.ts     # Cliente server
+│   └── utils.ts               # Helpers, formatadores
+├── store/
+│   └── useAppStore.ts         # Estado global (Zustand)
+├── types/
+│   └── index.ts               # Todos os tipos TypeScript
+└── proxy.ts                   # Proteção de rotas (Next.js 16)
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🗃️ Tabelas do Banco
+
+| Tabela | Descrição |
+|--------|-----------|
+| `profiles` | Perfil dos usuários |
+| `couple_config` | Configurações do casal |
+| `memories` | Linha do tempo |
+| `photos` | Galeria de fotos |
+| `videos` | Galeria de vídeos |
+| `travels` | Registro de viagens |
+| `places` | Lugares visitados |
+| `special_dates` | Datas especiais |
+| `playlist` | Músicas do casal |
+| `letters` | Cartas privadas |
+| `goals` | Metas do casal |
+| `time_capsules` | Cápsulas do tempo |
+| `wall_messages` | Mural de recados |
+
+---
+
+## 🔒 Segurança
+
+- ✅ Row Level Security (RLS) em todas as tabelas
+- ✅ Somente usuários autenticados acessam dados
+- ✅ JWT com refresh automático
+- ✅ Proteção de rotas via proxy
+- ✅ Senhas com hash bcrypt (Supabase)
+- ✅ Uploads validados por tipo e tamanho
+
+---
+
+## 📱 Instalar como App (PWA)
+
+**Android (Chrome):** Menu ⋮ → Adicionar à tela inicial  
+**iOS (Safari):** Compartilhar ↑ → Adicionar à Tela de Início
+
+---
+
+Feito com ❤️ para vocês.
