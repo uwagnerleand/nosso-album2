@@ -7,7 +7,6 @@ import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { formatDateLong } from '@/lib/utils'
 import { differenceInDays, parseISO, format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import type { SpecialDate } from '@/types'
@@ -93,12 +92,12 @@ export default function DatasEspeciaisPage() {
     }
     if (editing) {
       const { error } = await supabase.from('special_dates').update(payload).eq('id', editing.id)
-      if (error) { toast.error('Erro ao atualizar'); setSaving(false); return }
+      if (error) { toast.error(`Erro ao atualizar: ${error.message}`); setSaving(false); return }
       setDates(prev => prev.map(d => d.id === editing.id ? { ...d, ...payload } : d))
       toast.success('Data atualizada!')
     } else {
       const { data, error } = await supabase.from('special_dates').insert(payload).select().single()
-      if (error) { toast.error('Erro ao adicionar'); setSaving(false); return }
+      if (error) { toast.error(`Erro ao adicionar: ${error.message}`); setSaving(false); return }
       setDates(prev => [...prev, data])
       toast.success('Data especial adicionada! 🗓️')
     }

@@ -68,15 +68,22 @@ export default function PerfilPage() {
     if (!file) return
 
     setUploading(true)
-    const { data: user } = await supabase.auth.getUser()
-    const path = `${user.user!.id}/avatar.${file.name.split('.').pop()}`
+    const userEmail = getCurrentUserEmail()
+    if (!userEmail) { toast.error('Não autenticado'); setUploading(false); return }
+
+    const safeEmail = userEmail.replace(/[@.]/g, '_')
+    const path = `${safeEmail}/avatar.${file.name.split('.').pop()}`
 
     const { data, error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true })
-    if (error) { toast.error(error.message); setUploading(false); return }
+    if (error) { toast.error(`Erro no upload: ${error.message}`); setUploading(false); return }
 
     const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(data.path)
 
-    await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', user.user!.id)
+    const { error: updateErr } = await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('email', userEmail)
+    if (updateErr) {
+      await supabase.from('profiles').insert({ email: userEmail, avatar_url: publicUrl })
+    }
+
     setProfile(p => ({ ...p, avatar_url: publicUrl }))
     if (storeUser) setUser({ ...storeUser, avatar_url: publicUrl })
 

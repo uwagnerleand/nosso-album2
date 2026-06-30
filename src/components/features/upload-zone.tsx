@@ -84,7 +84,8 @@ export function UploadZone({
       if (f.done) continue
 
       const ext = f.file.name.split('.').pop()
-      const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      const prefix = folder ? `${folder}/` : ''
+      const path = `${prefix}${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 
       setFiles(prev => {
         const next = [...prev]

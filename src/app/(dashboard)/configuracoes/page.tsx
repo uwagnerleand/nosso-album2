@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Settings, Sun, Moon, Lock, Heart, Download, Trash2, Save, Palette } from 'lucide-react'
+import { Settings, Sun, Moon, Lock, Heart, Download, Trash2, Save, Palette, Info } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { clearSession } from '@/lib/auth'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,50 +18,68 @@ export default function ConfiguracoesPage() {
   const supabase = createClient()
   const router = useRouter()
   const { theme, setTheme } = useTheme()
-  const { coupleConfig: storeCoupleConfig, setCoupleConfig } = useAppStore()
+  const { setCoupleConfig } = useAppStore()
 
   const [config, setConfig] = useState<Partial<CoupleConfig>>({})
-  const [senhaAtual, setSenhaAtual] = useState('')
-  const [novaSenha, setNovaSenha] = useState('')
-  const [confirmarSenha, setConfirmarSenha] = useState('')
-  const [loadingSenha, setLoadingSenha] = useState(false)
   const [loadingConfig, setLoadingConfig] = useState(false)
+  const [loadingData, setLoadingData] = useState(true)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
+  // Load couple_config directly from Supabase — don't rely on store (which can be null)
   useEffect(() => {
-    if (storeCoupleConfig) setConfig(storeCoupleConfig)
-  }, [storeCoupleConfig])
+    async function loadConfig() {
+      setLoadingData(true)
+      const { data } = await supabase.from('couple_config').select('*').limit(1).single()
+      if (data) {
+        setConfig(data as CoupleConfig)
+        setCoupleConfig(data as CoupleConfig)
+      }
+      setLoadingData(false)
+    }
+    loadConfig()
+  }, [])
 
   async function handleSaveConfig() {
     setLoadingConfig(true)
-    const { error } = await supabase.from('couple_config').update({
+
+    const payload = {
       nome_casal: config.nome_casal,
       frase_personalizada: config.frase_personalizada,
-      data_inicio_namoro: config.data_inicio_namoro,
-      data_casamento: config.data_casamento,
-    }).eq('id', config.id!)
+      data_inicio_namoro: config.data_inicio_namoro || null,
+      data_casamento: config.data_casamento || null,
+    }
 
-    if (error) { toast.error(error.message); setLoadingConfig(false); return }
+    let error: { message: string } | null = null
 
-    const { data: updated } = await supabase.from('couple_config').select('*').single()
-    if (updated) setCoupleConfig(updated as CoupleConfig)
+    if (config.id) {
+      // UPDATE existing row
+      const result = await supabase.from('couple_config').update(payload).eq('id', config.id)
+      error = result.error
+    } else {
+      // INSERT first row
+      const result = await supabase.from('couple_config').insert(payload).select().single()
+      error = result.error
+      if (!error && result.data) {
+        setConfig(result.data as CoupleConfig)
+        setCoupleConfig(result.data as CoupleConfig)
+      }
+    }
+
+    if (error) {
+      toast.error(`Erro ao salvar: ${error.message}`)
+      setLoadingConfig(false)
+      return
+    }
+
+    // Refresh from DB
+    const { data: updated } = await supabase.from('couple_config').select('*').limit(1).single()
+    if (updated) {
+      setConfig(updated as CoupleConfig)
+      setCoupleConfig(updated as CoupleConfig)
+    }
 
     toast.success('Configurações salvas!')
     setLoadingConfig(false)
-  }
-
-  async function handleChangeSenha(e: React.FormEvent) {
-    e.preventDefault()
-    if (novaSenha !== confirmarSenha) { toast.error('As senhas não coincidem'); return }
-    if (novaSenha.length < 6) { toast.error('Senha deve ter pelo menos 6 caracteres'); return }
-
-    setLoadingSenha(true)
-    const { error } = await supabase.auth.updateUser({ password: novaSenha })
-    if (error) { toast.error(error.message); setLoadingSenha(false); return }
-
-    toast.success('Senha alterada com sucesso!')
-    setSenhaAtual(''); setNovaSenha(''); setConfirmarSenha('')
-    setLoadingSenha(false)
   }
 
   async function handleExport() {
@@ -95,11 +114,10 @@ export default function ConfiguracoesPage() {
     }
   }
 
-  async function handleDeleteAccount() {
-    const { error } = await supabase.auth.signOut()
-    if (error) { toast.error(error.message); return }
+  function handleLogout() {
+    clearSession()
     router.push('/')
-    toast.success('Conta desconectada')
+    toast.success('Até logo! 👋')
   }
 
   return (
@@ -112,45 +130,51 @@ export default function ConfiguracoesPage() {
           <h3 className="font-semibold flex items-center gap-2 mb-4">
             <Heart className="w-4 h-4 text-rose-400 fill-rose-400" /> Nosso Casal
           </h3>
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Nome do casal</label>
-              <Input
-                value={config.nome_casal ?? ''}
-                onChange={e => setConfig(p => ({ ...p, nome_casal: e.target.value }))}
-                placeholder="Ex: Wagner & Débora"
-              />
+          {loadingData ? (
+            <div className="space-y-3">
+              {[...Array(4)].map((_, i) => <div key={i} className="skeleton h-11 rounded-xl" />)}
             </div>
-            <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Frase personalizada</label>
-              <Input
-                value={config.frase_personalizada ?? ''}
-                onChange={e => setConfig(p => ({ ...p, frase_personalizada: e.target.value }))}
-                placeholder="A frase do casal..."
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
+          ) : (
+            <div className="space-y-3">
               <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Início do namoro</label>
+                <label className="text-xs text-muted-foreground">Nome do casal</label>
                 <Input
-                  type="date"
-                  value={config.data_inicio_namoro ?? ''}
-                  onChange={e => setConfig(p => ({ ...p, data_inicio_namoro: e.target.value }))}
+                  value={config.nome_casal ?? ''}
+                  onChange={e => setConfig(p => ({ ...p, nome_casal: e.target.value }))}
+                  placeholder="Ex: Wagner & Débora"
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Data do casamento</label>
+                <label className="text-xs text-muted-foreground">Frase personalizada</label>
                 <Input
-                  type="date"
-                  value={config.data_casamento ?? ''}
-                  onChange={e => setConfig(p => ({ ...p, data_casamento: e.target.value }))}
+                  value={config.frase_personalizada ?? ''}
+                  onChange={e => setConfig(p => ({ ...p, frase_personalizada: e.target.value }))}
+                  placeholder="A frase do casal..."
                 />
               </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs text-muted-foreground">Início do namoro</label>
+                  <Input
+                    type="date"
+                    value={config.data_inicio_namoro ?? ''}
+                    onChange={e => setConfig(p => ({ ...p, data_inicio_namoro: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs text-muted-foreground">Data do casamento</label>
+                  <Input
+                    type="date"
+                    value={config.data_casamento ?? ''}
+                    onChange={e => setConfig(p => ({ ...p, data_casamento: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <Button variant="gradient" size="sm" onClick={handleSaveConfig} loading={loadingConfig}>
+                <Save className="w-4 h-4" /> Salvar configurações
+              </Button>
             </div>
-            <Button variant="gradient" size="sm" onClick={handleSaveConfig} loading={loadingConfig}>
-              <Save className="w-4 h-4" /> Salvar configurações
-            </Button>
-          </div>
+          )}
         </motion.div>
 
         {/* Theme */}
@@ -174,18 +198,21 @@ export default function ConfiguracoesPage() {
           </div>
         </motion.div>
 
-        {/* Password */}
+        {/* Password info */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="glass-card p-5">
-          <h3 className="font-semibold flex items-center gap-2 mb-4">
-            <Lock className="w-4 h-4 text-blue-400" /> Alterar Senha
+          <h3 className="font-semibold flex items-center gap-2 mb-3">
+            <Lock className="w-4 h-4 text-blue-400" /> Senha de Acesso
           </h3>
-          <form onSubmit={handleChangeSenha} className="space-y-3">
-            <Input type="password" placeholder="Nova senha" value={novaSenha} onChange={e => setNovaSenha(e.target.value)} />
-            <Input type="password" placeholder="Confirmar nova senha" value={confirmarSenha} onChange={e => setConfirmarSenha(e.target.value)} />
-            <Button type="submit" variant="outline" size="sm" loading={loadingSenha}>
-              <Lock className="w-4 h-4" /> Alterar Senha
-            </Button>
-          </form>
+          <div className="flex items-start gap-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
+            <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm text-blue-300 font-medium">Senha gerenciada internamente</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                A senha de acesso é: <strong className="text-foreground">cor favorita de ambos</strong><br />
+                Exemplo: <code className="bg-white/10 px-1 rounded">roxo&vermelho</code>
+              </p>
+            </div>
+          </div>
         </motion.div>
 
         {/* Backup */}
@@ -194,28 +221,28 @@ export default function ConfiguracoesPage() {
             <Download className="w-4 h-4 text-emerald-400" /> Backup
           </h3>
           <p className="text-sm text-muted-foreground mb-3">
-            Exporte todos os seus dados em formato JSON para backup.
+            Exporte todos os dados em formato JSON para guardar.
           </p>
           <Button variant="outline" size="sm" onClick={handleExport}>
             <Download className="w-4 h-4" /> Exportar Dados
           </Button>
         </motion.div>
 
-        {/* Danger zone */}
+        {/* Logout */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="glass-card p-5 border-red-500/20">
           <h3 className="font-semibold flex items-center gap-2 mb-4 text-red-400">
-            <Trash2 className="w-4 h-4" /> Zona de Perigo
+            <Trash2 className="w-4 h-4" /> Sair da Conta
           </h3>
           {!showDeleteConfirm ? (
             <Button variant="destructive" size="sm" onClick={() => setShowDeleteConfirm(true)}>
-              <Trash2 className="w-4 h-4" /> Sair da conta
+              <Trash2 className="w-4 h-4" /> Desconectar
             </Button>
           ) : (
             <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">Tem certeza? Você será desconectado.</p>
+              <p className="text-sm text-muted-foreground">Tem certeza? Você precisará fazer login novamente.</p>
               <div className="flex gap-2">
                 <Button variant="ghost" size="sm" onClick={() => setShowDeleteConfirm(false)}>Cancelar</Button>
-                <Button variant="destructive" size="sm" onClick={handleDeleteAccount}>Confirmar saída</Button>
+                <Button variant="destructive" size="sm" onClick={handleLogout}>Confirmar saída</Button>
               </div>
             </div>
           )}
