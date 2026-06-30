@@ -59,7 +59,7 @@ CREATE TABLE public.memories (
   latitude DECIMAL(10, 8),
   longitude DECIMAL(11, 8),
   favorito BOOLEAN DEFAULT FALSE,
-  criado_por UUID REFERENCES public.profiles(id),
+  criado_por TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -81,7 +81,7 @@ CREATE TABLE public.photos (
   altura INT,
   memory_id UUID REFERENCES public.memories(id) ON DELETE SET NULL,
   viagem_id UUID,
-  adicionado_por UUID REFERENCES public.profiles(id),
+  adicionado_por TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -103,7 +103,7 @@ CREATE TABLE public.videos (
   tamanho_bytes BIGINT,
   memory_id UUID REFERENCES public.memories(id) ON DELETE SET NULL,
   viagem_id UUID,
-  adicionado_por UUID REFERENCES public.profiles(id),
+  adicionado_por TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -182,7 +182,7 @@ CREATE TABLE public.playlist (
   motivo TEXT,
   favorito BOOLEAN DEFAULT FALSE,
   ordem INT DEFAULT 0,
-  adicionado_por UUID REFERENCES public.profiles(id),
+  adicionado_por TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -194,8 +194,8 @@ CREATE TABLE public.letters (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   titulo TEXT NOT NULL,
   conteudo TEXT NOT NULL,
-  de UUID REFERENCES public.profiles(id),
-  para UUID REFERENCES public.profiles(id),
+  de TEXT,
+  para TEXT,
   favorito BOOLEAN DEFAULT FALSE,
   lida BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -230,7 +230,7 @@ CREATE TABLE public.time_capsules (
   data_abertura DATE NOT NULL,
   aberta BOOLEAN DEFAULT FALSE,
   data_aberta TIMESTAMPTZ,
-  criado_por UUID REFERENCES public.profiles(id),
+  criado_por TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -253,7 +253,7 @@ CREATE TABLE public.wall_messages (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   mensagem TEXT NOT NULL,
   emoji TEXT,
-  de UUID REFERENCES public.profiles(id),
+  de TEXT,
   cor_fundo TEXT DEFAULT '#fce7f3',
   favorito BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -267,7 +267,7 @@ CREATE TABLE public.comments (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   photo_id UUID REFERENCES public.photos(id) ON DELETE CASCADE,
   texto TEXT NOT NULL,
-  autor UUID REFERENCES public.profiles(id),
+  autor TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -278,7 +278,7 @@ CREATE TABLE public.reactions (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   memory_id UUID REFERENCES public.memories(id) ON DELETE CASCADE,
   emoji TEXT NOT NULL,
-  autor UUID REFERENCES public.profiles(id),
+  autor TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(memory_id, autor)
 );
@@ -325,42 +325,28 @@ CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.time_capsules FOR EACH ROW
 CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.wall_messages FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
 -- ============================================================
--- ROW LEVEL SECURITY (RLS)
+-- ROW LEVEL SECURITY (RLS) - DESATIVADO
 -- ============================================================
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.couple_config ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.memories ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.photos ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.videos ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.travels ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.places ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.special_dates ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.playlist ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.letters ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.goals ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.time_capsules ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.capsule_media ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.wall_messages ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.reactions ENABLE ROW LEVEL SECURITY;
-
--- Políticas: somente usuários autenticados podem ler/escrever
-CREATE POLICY "Authenticated users can do everything" ON public.profiles FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Authenticated users can do everything" ON public.couple_config FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Authenticated users can do everything" ON public.memories FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Authenticated users can do everything" ON public.photos FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Authenticated users can do everything" ON public.videos FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Authenticated users can do everything" ON public.travels FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Authenticated users can do everything" ON public.places FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Authenticated users can do everything" ON public.special_dates FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Authenticated users can do everything" ON public.playlist FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Authenticated users can do everything" ON public.letters FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Authenticated users can do everything" ON public.goals FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Authenticated users can do everything" ON public.time_capsules FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Authenticated users can do everything" ON public.capsule_media FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Authenticated users can do everything" ON public.wall_messages FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Authenticated users can do everything" ON public.comments FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Authenticated users can do everything" ON public.reactions FOR ALL USING (auth.role() = 'authenticated');
+-- IMPORTANTE: RLS foi desativado porque o sistema usa autenticação
+-- local (cookie/sessão própria) em vez do Supabase Auth.
+-- A segurança é feita pelo middleware (proxy.ts) que protege as rotas.
+-- ============================================================
+ALTER TABLE public.profiles DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.couple_config DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.memories DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.photos DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.videos DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.travels DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.places DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.special_dates DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.playlist DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.letters DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.goals DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.time_capsules DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.capsule_media DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.wall_messages DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.comments DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.reactions DISABLE ROW LEVEL SECURITY;
 
 -- ============================================================
 -- STORAGE BUCKETS
@@ -371,10 +357,11 @@ INSERT INTO storage.buckets (id, name, public) VALUES ('avatars', 'avatars', tru
 INSERT INTO storage.buckets (id, name, public) VALUES ('covers', 'covers', true);
 INSERT INTO storage.buckets (id, name, public) VALUES ('capsules', 'capsules', false);
 
-CREATE POLICY "Auth users can upload" ON storage.objects FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Auth users can view" ON storage.objects FOR SELECT USING (auth.role() = 'authenticated' OR bucket_id IN ('photos', 'videos', 'avatars', 'covers'));
-CREATE POLICY "Auth users can update" ON storage.objects FOR UPDATE USING (auth.role() = 'authenticated');
-CREATE POLICY "Auth users can delete" ON storage.objects FOR DELETE USING (auth.role() = 'authenticated');
+-- Políticas públicas de storage (sem necessidade de auth)
+CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (true);
+CREATE POLICY "Public Upload" ON storage.objects FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public Update" ON storage.objects FOR UPDATE USING (true);
+CREATE POLICY "Public Delete" ON storage.objects FOR DELETE USING (true);
 
 -- ============================================================
 -- CRIAÇÃO DOS USUÁRIOS DO CASAL (Auth)

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Search, Heart, X, Play, Film, Trash2, Filter } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { getCurrentUserEmail } from '@/lib/auth'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -63,10 +64,9 @@ export default function VideosPage() {
   }
 
   async function handleUploadComplete(urls: string[]) {
-    const { data: userData } = await supabase.auth.getUser()
     const inserts = urls.map(url => ({
       url,
-      adicionado_por: userData.user?.id,
+      adicionado_por: getCurrentUserEmail() ?? 'casal',
       categoria: 'geral',
     }))
     await supabase.from('videos').insert(inserts)

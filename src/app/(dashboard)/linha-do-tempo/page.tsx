@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, X, Heart, MapPin, Calendar, Edit2, Trash2, Search } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { getCurrentUserEmail } from '@/lib/auth'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -47,14 +48,14 @@ export default function LinhaDoTempoPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.titulo || !form.data) { toast.error('Título e data são obrigatórios'); return }
-    const { data: user } = await supabase.auth.getUser()
+    const userEmail = getCurrentUserEmail()
 
     if (editing) {
       const { error } = await supabase.from('memories').update(form).eq('id', editing.id)
       if (error) { toast.error(error.message); return }
       toast.success('Memória atualizada! ✨')
     } else {
-      const { error } = await supabase.from('memories').insert({ ...form, criado_por: user.user?.id })
+      const { error } = await supabase.from('memories').insert({ ...form, criado_por: userEmail ?? 'casal' })
       if (error) { toast.error(error.message); return }
       toast.success('Memória criada! ❤️')
     }

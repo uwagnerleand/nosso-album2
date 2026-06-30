@@ -77,6 +77,16 @@ export function getSession(): AuthSession | null {
   return null
 }
 
+/**
+ * Retorna o email do usuário logado via sessão local.
+ * Substitui chamadas a supabase.auth.getUser() que não funcionam
+ * mais pois removemos o Supabase Auth.
+ */
+export function getCurrentUserEmail(): string | null {
+  const session = getSession()
+  return session?.email ?? null
+}
+
 export function clearSession(): void {
   if (typeof window !== 'undefined') {
     document.cookie = `${SESSION_COOKIE}=; path=/; max-age=0`

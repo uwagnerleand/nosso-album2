@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Heart, X, Mail, Trash2, Send, Inbox } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { getCurrentUserEmail } from '@/lib/auth'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,19 +27,17 @@ export default function CartasPage() {
   const [viewLetter, setViewLetter] = useState<Letter | null>(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null)
   const [profiles, setProfiles] = useState<Profile[]>([])
 
   useEffect(() => {
+    const email = getCurrentUserEmail()
+    setCurrentUserEmail(email)
     loadData()
   }, [])
 
   async function loadData() {
     setLoading(true)
-    const { data: userData } = await supabase.auth.getUser()
-    const uid = userData.user?.id ?? null
-    setCurrentUserId(uid)
-
     const [{ data: lettersData }, { data: profilesData }] = await Promise.all([
       supabase.from('letters').select('*').order('created_at', { ascending: false }),
       supabase.from('profiles').select('*'),
@@ -48,8 +47,8 @@ export default function CartasPage() {
     setLoading(false)
   }
 
-  const paraMin = letters.filter(l => l.para === currentUserId)
-  const paraVoce = letters.filter(l => l.de === currentUserId)
+  const paraMin = letters.filter(l => l.de === currentUserEmail)
+  const paraVoce = letters.filter(l => l.para === currentUserEmail)
   const displayed = tab === 'para-mim' ? paraMin : paraVoce
 
   async function saveLetter() {
@@ -61,7 +60,7 @@ export default function CartasPage() {
     const payload = {
       titulo: form.titulo,
       conteudo: form.conteudo,
-      de: currentUserId,
+      de: currentUserEmail,
       para: form.para || null,
     }
     const { data, error } = await supabase.from('letters').insert(payload).select().single()
@@ -93,15 +92,15 @@ export default function CartasPage() {
     setLetters(prev => prev.map(l => l.id === letter.id ? { ...l, lida: true } : l))
   }
 
-  function getProfileName(id: string | null) {
-    if (!id) return 'Desconhecido'
-    const p = profiles.find(p => p.id === id)
-    return p?.apelido ?? p?.nome ?? 'Usuário'
+  function getProfileName(email: string | null) {
+    if (!email) return 'Desconhecido'
+    const p = profiles.find(p => p.email === email)
+    return p?.apelido ?? p?.nome ?? email.split('@')[0] ?? 'Usuário'
   }
 
   function openLetter(letter: Letter) {
     setViewLetter(letter)
-    if (!letter.lida && letter.para === currentUserId) markRead(letter)
+    if (!letter.lida && letter.de === currentUserEmail) markRead(letter)
   }
 
   return (
@@ -184,7 +183,7 @@ export default function CartasPage() {
               >
                 <div className="glass rounded-2xl p-4 h-full relative">
                   {/* Unread dot */}
-                  {!letter.lida && letter.para === currentUserId && (
+                  {!letter.lida && letter.de === currentUserEmail && (
                     <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-rose-500 rounded-full animate-pulse" />
                   )}
 
@@ -324,8 +323,8 @@ export default function CartasPage() {
                       className="w-full bg-white/5 border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/50"
                     >
                       <option value="">Selecione o destinatário</option>
-                      {profiles.filter(p => p.id !== currentUserId).map(p => (
-                        <option key={p.id} value={p.id}>{p.apelido ?? p.nome ?? p.email}</option>
+                      {profiles.filter(p => p.email !== currentUserEmail).map(p => (
+                        <option key={p.email} value={p.email}>{p.apelido ?? p.nome ?? p.email}</option>
                       ))}
                     </select>
                   </div>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { User, Camera, Save, Edit2, Heart } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { getCurrentUserEmail } from '@/lib/auth'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -44,16 +45,17 @@ export default function PerfilPage() {
 
   async function handleSave() {
     setLoading(true)
-    const { data: user } = await supabase.auth.getUser()
+    const userEmail = getCurrentUserEmail()
+    if (!userEmail) { toast.error('Usuário não autenticado'); setLoading(false); return }
     const { error } = await supabase.from('profiles').update({
       ...profile,
       sonhos,
       curiosidades,
-    }).eq('id', user.user!.id)
+    }).eq('email', userEmail)
 
     if (error) { toast.error(error.message); setLoading(false); return }
 
-    const { data: updated } = await supabase.from('profiles').select('*').eq('id', user.user!.id).single()
+    const { data: updated } = await supabase.from('profiles').select('*').eq('email', userEmail).single()
     if (updated) setUser(updated as Profile)
 
     toast.success('Perfil salvo! ✨')
