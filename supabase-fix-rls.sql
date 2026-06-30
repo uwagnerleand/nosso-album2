@@ -3,7 +3,20 @@
 -- Execute APENAS este script no SQL Editor do Supabase
 -- ============================================================
 
--- 1. DESATIVAR RLS EM TODAS AS TABELAS
+-- 1. REMOVER CONSTRAINTS DE FOREIGN KEY (que apontam para UUID)
+ALTER TABLE public.memories DROP CONSTRAINT IF EXISTS memories_criado_por_fkey;
+ALTER TABLE public.photos DROP CONSTRAINT IF EXISTS photos_adicionado_por_fkey;
+ALTER TABLE public.videos DROP CONSTRAINT IF EXISTS videos_adicionado_por_fkey;
+ALTER TABLE public.playlist DROP CONSTRAINT IF EXISTS playlist_adicionado_por_fkey;
+ALTER TABLE public.letters DROP CONSTRAINT IF EXISTS letters_de_fkey;
+ALTER TABLE public.letters DROP CONSTRAINT IF EXISTS letters_para_fkey;
+ALTER TABLE public.time_capsules DROP CONSTRAINT IF EXISTS time_capsules_criado_por_fkey;
+ALTER TABLE public.wall_messages DROP CONSTRAINT IF EXISTS wall_messages_de_fkey;
+ALTER TABLE public.comments DROP CONSTRAINT IF EXISTS comments_autor_fkey;
+ALTER TABLE public.reactions DROP CONSTRAINT IF EXISTS reactions_autor_fkey;
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_id_fkey;
+
+-- 2. DESATIVAR RLS EM TODAS AS TABELAS
 ALTER TABLE public.profiles DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.couple_config DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.memories DISABLE ROW LEVEL SECURITY;
@@ -21,7 +34,7 @@ ALTER TABLE public.wall_messages DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.comments DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reactions DISABLE ROW LEVEL SECURITY;
 
--- 2. REMOVER POLÍTICAS RLS ANTIGAS (que exigiam auth.role())
+-- 3. REMOVER POLÍTICAS RLS ANTIGAS (que exigiam auth.role())
 DROP POLICY IF EXISTS "Authenticated users can do everything" ON public.profiles;
 DROP POLICY IF EXISTS "Authenticated users can do everything" ON public.couple_config;
 DROP POLICY IF EXISTS "Authenticated users can do everything" ON public.memories;
@@ -39,19 +52,19 @@ DROP POLICY IF EXISTS "Authenticated users can do everything" ON public.wall_mes
 DROP POLICY IF EXISTS "Authenticated users can do everything" ON public.comments;
 DROP POLICY IF EXISTS "Authenticated users can do everything" ON public.reactions;
 
--- 3. REMOVER POLÍTICAS DE STORAGE ANTIGAS
+-- 4. REMOVER POLÍTICAS DE STORAGE ANTIGAS
 DROP POLICY IF EXISTS "Auth users can upload" ON storage.objects;
 DROP POLICY IF EXISTS "Auth users can view" ON storage.objects;
 DROP POLICY IF EXISTS "Auth users can update" ON storage.objects;
 DROP POLICY IF EXISTS "Auth users can delete" ON storage.objects;
 
--- 4. CRIAR POLÍTICAS PÚBLICAS DE STORAGE
+-- 5. CRIAR POLÍTICAS PÚBLICAS DE STORAGE
 CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (true);
 CREATE POLICY "Public Upload" ON storage.objects FOR INSERT WITH CHECK (true);
 CREATE POLICY "Public Update" ON storage.objects FOR UPDATE USING (true);
 CREATE POLICY "Public Delete" ON storage.objects FOR DELETE USING (true);
 
--- 5. ALTERAR COLUNAS QUE ERAM UUID PARA TEXT
+-- 6. ALTERAR COLUNAS QUE ERAM UUID PARA TEXT
 -- (para armazenar email em vez de UUID)
 ALTER TABLE public.memories ALTER COLUMN criado_por TYPE TEXT USING criado_por::TEXT;
 ALTER TABLE public.photos ALTER COLUMN adicionado_por TYPE TEXT USING adicionado_por::TEXT;
