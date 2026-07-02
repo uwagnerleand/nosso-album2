@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Heart, X, Mail, Trash2, Send, Inbox } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { getCurrentUserEmail } from '@/lib/auth'
+import { sendEmail, templateCarta } from '@/lib/email'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -66,6 +67,17 @@ export default function CartasPage() {
     const { data, error } = await supabase.from('letters').insert(payload).select().single()
     if (error) { toast.error('Erro ao enviar carta'); setSaving(false); return }
     setLetters(prev => [data, ...prev])
+    
+    // Notificar o outro membro do casal
+    if (form.para && form.para !== currentUserEmail) {
+      const nomeRemetente = currentUserEmail === 'lcunhaleandro@gmail.com' ? 'Leandro' : 'Débora'
+      sendEmail({
+        to: form.para,
+        subject: '💌 Você recebeu uma carta!',
+        html: templateCarta(nomeRemetente, form.titulo),
+      })
+    }
+    
     toast.success('Carta enviada! 💌')
     setSaving(false)
     setShowModal(false)

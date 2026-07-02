@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Package, Lock, Unlock, Plus, X, Calendar, Sparkles } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { getCurrentUserEmail } from '@/lib/auth'
+import { sendEmail, templateCapsula } from '@/lib/email'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -38,6 +39,15 @@ export default function CapsulasPage() {
       titulo: form.titulo, mensagem: form.mensagem, data_abertura: form.data_abertura, criado_por: userEmail
     })
     if (error) { toast.error(error.message); return }
+    
+    // Notificar o outro membro do casal
+    const nomeCriador = userEmail === 'lcunhaleandro@gmail.com' ? 'Leandro' : 'Débora'
+    sendEmail({
+      to: userEmail === 'lcunhaleandro@gmail.com' ? 'debgarcia491@gmail.com' : 'lcunhaleandro@gmail.com',
+      subject: '📦 Nova cápsula do tempo!',
+      html: templateCapsula(nomeCriador, form.titulo, form.data_abertura),
+    })
+    
     toast.success('Cápsula criada! Será aberta em ' + formatDateLong(form.data_abertura) + ' 🎁')
     setForm({ titulo: '', mensagem: '', data_abertura: '' })
     setShowForm(false)

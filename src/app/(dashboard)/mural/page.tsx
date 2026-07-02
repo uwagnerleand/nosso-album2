@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MessageSquare, Plus, X, Heart, Trash2, Send } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { getCurrentUserEmail } from '@/lib/auth'
+import { sendEmail, templateRecado } from '@/lib/email'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { formatDate } from '@/lib/utils'
@@ -41,6 +42,14 @@ export default function MuralPage() {
     
     if (error) { toast.error(error.message); return }
     if (!inserted || inserted.length === 0) { toast.error('Recado não foi salvo. Tente novamente.'); return }
+    
+    // Notificar o casal por email
+    const nomeRemetente = userEmail === 'lcunhaleandro@gmail.com' ? 'Leandro' : 'Débora'
+    sendEmail({
+      to: userEmail === 'lcunhaleandro@gmail.com' ? 'debgarcia491@gmail.com' : 'lcunhaleandro@gmail.com',
+      subject: '💌 Novo recado no mural!',
+      html: templateRecado(nomeRemetente, form.mensagem),
+    })
     
     toast.success('Recado enviado! 💕')
     setForm({ mensagem: '', emoji: '❤️', cor_fundo: '#fce7f3' })
