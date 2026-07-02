@@ -25,7 +25,7 @@ export default function MuralPage() {
 
   async function load() {
     setLoading(true)
-    const { data } = await supabase.from('wall_messages').select('*, author:profiles(nome, avatar_url)').order('created_at', { ascending: false })
+    const { data } = await supabase.from('wall_messages').select('*').order('created_at', { ascending: false })
     setMessages(data ?? [])
     setLoading(false)
   }
@@ -34,14 +34,18 @@ export default function MuralPage() {
     e.preventDefault()
     if (!form.mensagem.trim()) { toast.error('Escreva uma mensagem'); return }
     const userEmail = getCurrentUserEmail()
-    const { error } = await supabase.from('wall_messages').insert({
+    
+    const { data: inserted, error } = await supabase.from('wall_messages').insert({
       mensagem: form.mensagem, emoji: form.emoji, cor_fundo: form.cor_fundo, de: userEmail
-    })
+    }).select()
+    
     if (error) { toast.error(error.message); return }
+    if (!inserted || inserted.length === 0) { toast.error('Recado não foi salvo. Tente novamente.'); return }
+    
     toast.success('Recado enviado! 💕')
     setForm({ mensagem: '', emoji: '❤️', cor_fundo: '#fce7f3' })
     setShowForm(false)
-    load()
+    await load()
   }
 
   async function toggleFavorite(msg: WallMessage) {
