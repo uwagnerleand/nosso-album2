@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MessageSquare, Plus, X, Heart, Trash2, Send } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { getCurrentUserEmail } from '@/lib/auth'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { formatDate } from '@/lib/utils'
@@ -32,9 +33,9 @@ export default function MuralPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.mensagem.trim()) { toast.error('Escreva uma mensagem'); return }
-    const { data: user } = await supabase.auth.getUser()
+    const userEmail = getCurrentUserEmail()
     const { error } = await supabase.from('wall_messages').insert({
-      mensagem: form.mensagem, emoji: form.emoji, cor_fundo: form.cor_fundo, de: user.user?.id
+      mensagem: form.mensagem, emoji: form.emoji, cor_fundo: form.cor_fundo, de: userEmail
     })
     if (error) { toast.error(error.message); return }
     toast.success('Recado enviado! 💕')

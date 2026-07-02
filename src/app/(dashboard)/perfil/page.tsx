@@ -47,8 +47,10 @@ export default function PerfilPage() {
     setLoading(true)
     const userEmail = getCurrentUserEmail()
     if (!userEmail) { toast.error('Usuário não autenticado'); setLoading(false); return }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, created_at, updated_at, ...profileData } = profile
     const { error } = await supabase.from('profiles').update({
-      ...profile,
+      ...profileData,
       sonhos,
       curiosidades,
     }).eq('email', userEmail)

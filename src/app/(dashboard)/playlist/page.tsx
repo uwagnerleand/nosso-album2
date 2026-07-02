@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Search, Heart, X, Music2, Trash2, Edit2, ExternalLink, PlayCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { getCurrentUserEmail } from '@/lib/auth'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -72,7 +73,7 @@ export default function PlaylistPage() {
   async function saveItem() {
     if (!form.nome.trim()) { toast.error('Nome da música é obrigatório'); return }
     setSaving(true)
-    const { data: userData } = await supabase.auth.getUser()
+    const userEmail = getCurrentUserEmail()
     const payload = {
       nome: form.nome,
       artista: form.artista || null,
@@ -90,7 +91,7 @@ export default function PlaylistPage() {
       const newItem = {
         ...payload,
         ordem: items.length + 1,
-        adicionado_por: userData.user?.id ?? null,
+        adicionado_por: userEmail,
       }
       const { data, error } = await supabase.from('playlist').insert(newItem).select().single()
       if (error) { toast.error('Erro ao adicionar'); setSaving(false); return }

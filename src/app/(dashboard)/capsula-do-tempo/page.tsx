@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Package, Lock, Unlock, Plus, X, Calendar, Sparkles } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { getCurrentUserEmail } from '@/lib/auth'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -32,9 +33,9 @@ export default function CapsulasPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.titulo || !form.data_abertura) { toast.error('Preencha título e data'); return }
-    const { data: user } = await supabase.auth.getUser()
+    const userEmail = getCurrentUserEmail()
     const { error } = await supabase.from('time_capsules').insert({
-      titulo: form.titulo, mensagem: form.mensagem, data_abertura: form.data_abertura, criado_por: user.user?.id
+      titulo: form.titulo, mensagem: form.mensagem, data_abertura: form.data_abertura, criado_por: userEmail
     })
     if (error) { toast.error(error.message); return }
     toast.success('Cápsula criada! Será aberta em ' + formatDateLong(form.data_abertura) + ' 🎁')
