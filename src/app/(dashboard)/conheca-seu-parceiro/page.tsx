@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Heart, Edit2, Save, User, Camera, Users, Baby, Sparkles, Star, Trophy, Brain, Palette, Music, Gamepad2, Sunrise, Compass, HeartHandshake, Clock, HelpCircle, Coffee, Flame, BookHeart } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 import { getCurrentUserEmail } from '@/lib/auth'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
@@ -173,8 +172,34 @@ const sections: SectionDef[] = [
 // PAGE COMPONENT
 // ============================================================
 
+// Helper to call the API route (bypasses RLS via service_role key)
+async function apiGetProfile(email: string): Promise<Partial<PartnerProfile> | null> {
+  try {
+    const res = await fetch(`/api/partner-profiles?email=${encodeURIComponent(email)}`)
+    const json = await res.json()
+    if (json.error) throw new Error(json.error)
+    return json.data as Partial<PartnerProfile>
+  } catch {
+    return null
+  }
+}
+
+async function apiSaveProfile(email: string, data: Record<string, string | null>): Promise<boolean> {
+  try {
+    const res = await fetch('/api/partner-profiles', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, ...data }),
+    })
+    const json = await res.json()
+    if (json.error) throw new Error(json.error)
+    return true
+  } catch (err) {
+    throw err
+  }
+}
+
 export default function ConhecaSeuParceiroPage() {
-  const supabase = createClient()
   const { user: storeUser } = useAppStore()
 
   const [myProfile, setMyProfile] = useState<Partial<PartnerProfile>>({})
@@ -206,23 +231,13 @@ export default function ConhecaSeuParceiroPage() {
   async function loadProfiles(email: string) {
     const partnerEm = email === 'lcunhaleandro@gmail.com' ? 'debgarcia491@gmail.com' : 'lcunhaleandro@gmail.com'
 
-    // Load my profile
-    const { data: myData } = await supabase
-      .from('partner_profiles')
-      .select('*')
-      .eq('email', email)
-      .single()
+    // Load my profile via API
+    const myData = await apiGetProfile(email)
+    if (myData) setMyProfile(myData)
 
-    if (myData) setMyProfile(myData as Partial<PartnerProfile>)
-
-    // Load partner's profile
-    const { data: partnerData } = await supabase
-      .from('partner_profiles')
-      .select('*')
-      .eq('email', partnerEm)
-      .single()
-
-    if (partnerData) setPartnerProfile(partnerData as Partial<PartnerProfile>)
+    // Load partner's profile via API
+    const partnerData = await apiGetProfile(partnerEm)
+    if (partnerData) setPartnerProfile(partnerData)
   }
 
   function handleMyFieldChange(key: keyof PartnerProfile, value: string) {
@@ -238,14 +253,11 @@ export default function ConhecaSeuParceiroPage() {
       updateData[field.key] = (myProfile[field.key] as string) ?? null
     }
 
-    const { error } = await supabase
-      .from('partner_profiles')
-      .upsert({ email: myEmail, ...updateData }, { onConflict: 'email' })
-
-    if (error) {
-      toast.error(`Erro ao salvar: ${error.message}`)
-    } else {
+    try {
+      await apiSaveProfile(myEmail, updateData)
       toast.success('Salvo com sucesso! ✨')
+    } catch (err) {
+      toast.error(`Erro ao salvar: ${(err as Error).message}`)
     }
 
     setSavingSection(null)
@@ -262,15 +274,12 @@ export default function ConhecaSeuParceiroPage() {
       updateData[field.key] = (myProfile[field.key] as string) ?? null
     }
 
-    const { error } = await supabase
-      .from('partner_profiles')
-      .upsert(updateData, { onConflict: 'email' })
-
-    if (error) {
-      toast.error(`Erro ao salvar: ${error.message}`)
-    } else {
+    try {
+      await apiSaveProfile(myEmail, updateData)
       toast.success('Tudo salvo! ✨')
       setEditing(false)
+    } catch (err) {
+      toast.error(`Erro ao salvar: ${(err as Error).message}`)
     }
 
     setLoading(false)

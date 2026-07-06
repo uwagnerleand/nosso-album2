@@ -175,6 +175,7 @@ CREATE TABLE IF NOT EXISTS public.partner_profiles (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- ⚠️ IMPORTANTE: Desabilitar RLS DEPOIS de criar a tabela
 ALTER TABLE public.partner_profiles DISABLE ROW LEVEL SECURITY;
 
 -- Insert initial records for both users (they will edit later)
@@ -183,6 +184,13 @@ VALUES
   ('lcunhaleandro@gmail.com'),
   ('debgarcia491@gmail.com')
 ON CONFLICT (email) DO NOTHING;
+
+-- ============================================================
+-- ⚠️ ATENÇÃO: Se você já executou o script antes e está com erro
+-- "new row violates row-level security policy", execute APENAS:
+--
+--   ALTER TABLE public.partner_profiles DISABLE ROW LEVEL SECURITY;
+-- ============================================================
 
 -- ============================================================
 -- PRONTO! O sistema está configurado sem Supabase Auth.
