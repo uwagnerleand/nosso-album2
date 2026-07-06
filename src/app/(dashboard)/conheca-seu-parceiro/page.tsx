@@ -240,8 +240,7 @@ export default function ConhecaSeuParceiroPage() {
 
     const { error } = await supabase
       .from('partner_profiles')
-      .upsert({ email: myEmail, ...updateData })
-      .eq('email', myEmail)
+      .upsert({ email: myEmail, ...updateData }, { onConflict: 'email' })
 
     if (error) {
       toast.error(`Erro ao salvar: ${error.message}`)
@@ -265,7 +264,7 @@ export default function ConhecaSeuParceiroPage() {
 
     const { error } = await supabase
       .from('partner_profiles')
-      .upsert(updateData)
+      .upsert(updateData, { onConflict: 'email' })
 
     if (error) {
       toast.error(`Erro ao salvar: ${error.message}`)
