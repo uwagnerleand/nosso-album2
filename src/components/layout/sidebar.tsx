@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/nossa-historia', label: 'Nossa História', icon: BookOpen },
+  { href: '/conheca-seu-parceiro', label: 'Conheça seu Parceiro', icon: Heart },
   { href: '/linha-do-tempo', label: 'Linha do Tempo', icon: Clock },
   { href: '/galeria', label: 'Galeria', icon: Images },
   { href: '/videos', label: 'Vídeos', icon: Video },

@@ -29,7 +29,11 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'nosso-album-store',
-      partialize: (state) => ({ theme: state.theme, sidebarOpen: state.sidebarOpen }),
+      partialize: (state) => ({
+        theme: state.theme,
+        sidebarOpen: state.sidebarOpen,
+        user: state.user,
+      }),
     }
   )
 )

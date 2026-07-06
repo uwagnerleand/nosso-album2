@@ -11,12 +11,18 @@ interface DashboardInitProps {
 }
 
 export function DashboardInit({ profile, coupleConfig, children }: DashboardInitProps) {
-  const { setUser, setCoupleConfig, sidebarOpen } = useAppStore()
+  const { user, setUser, setCoupleConfig, sidebarOpen } = useAppStore()
 
   useEffect(() => {
-    setUser(profile)
-    setCoupleConfig(coupleConfig)
-  }, [profile, coupleConfig, setUser, setCoupleConfig])
+    // Only set initial user if store doesn't have one yet (or if current is the minimal localProfile)
+    // This prevents overwriting a full profile that was fetched from Supabase and persisted
+    if (!user || !user.nome) {
+      setUser(profile)
+    }
+    if (!useAppStore.getState().coupleConfig) {
+      setCoupleConfig(coupleConfig)
+    }
+  }, [profile, coupleConfig, setUser, setCoupleConfig, user])
 
   return (
     <div

@@ -106,6 +106,85 @@ UNION ALL
 SELECT 'couple_config', COUNT(*) FROM public.couple_config;
 
 -- ============================================================
+-- TABELA: partner_profiles (perfil completo "Conheça seu Parceiro")
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS public.partner_profiles (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  nome_completo TEXT,
+  como_gosta_de_ser_chamado TEXT,
+  data_nascimento TEXT,
+  cidade_nasceu TEXT,
+  quem_faz_parte_familia TEXT,
+  relacao_com_familia TEXT,
+  pessoas_importantes_vida TEXT,
+  melhor_lembranca_infancia TEXT,
+  sonho_crianca TEXT,
+  desenho_brincadeira_favorita TEXT,
+  medo_crianca TEXT,
+  tres_qualidades TEXT,
+  tres_defeitos TEXT,
+  maior_medo_atualmente TEXT,
+  o_que_mais_irrita TEXT,
+  o_que_mais_deixa_feliz TEXT,
+  como_gosta_resolver_conflitos TEXT,
+  cor_favorita TEXT,
+  comida_favorita TEXT,
+  bebida_favorita TEXT,
+  musica_favorita TEXT,
+  artista_banda_favorita TEXT,
+  filme_favorito TEXT,
+  serie_favorita TEXT,
+  anime_favorito TEXT,
+  livro_favorito TEXT,
+  jogo_favorito TEXT,
+  hobby_tempo_livre TEXT,
+  esporte_favorito TEXT,
+  talento_habilidade TEXT,
+  maior_sonho TEXT,
+  lugar_deseja_conhecer TEXT,
+  objetivo_proximos_anos TEXT,
+  linguagem_amor TEXT,
+  como_demonstra_carinho TEXT,
+  como_gosta_receber_carinho TEXT,
+  nunca_pode_faltar_relacionamento TEXT,
+  o_que_considera_traicao TEXT,
+  encontro_perfeito TEXT,
+  planos_futuro TEXT,
+  rotina TEXT,
+  dorme_cedo_ou_tarde TEXT,
+  cafe_ou_cha TEXT,
+  doce_ou_salgado TEXT,
+  praia_ou_montanha TEXT,
+  calor_ou_frio TEXT,
+  animal_favorito TEXT,
+  flor_favorita TEXT,
+  perfume_favorito TEXT,
+  maior_vergonha TEXT,
+  maior_conquista TEXT,
+  maior_arrependimento TEXT,
+  algo_quase_ninguem_sabe TEXT,
+  primeira_impressao_parceiro TEXT,
+  momento_favorito_casal TEXT,
+  o_que_mais_gosta_em_mim TEXT,
+  gostaria_melhorar_casal TEXT,
+  sonho_realizar_com_parceiro TEXT,
+  avatar_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.partner_profiles DISABLE ROW LEVEL SECURITY;
+
+-- Insert initial records for both users (they will edit later)
+INSERT INTO public.partner_profiles (email)
+VALUES
+  ('lcunhaleandro@gmail.com'),
+  ('debgarcia491@gmail.com')
+ON CONFLICT (email) DO NOTHING;
+
+-- ============================================================
 -- PRONTO! O sistema está configurado sem Supabase Auth.
 -- Usuários: lcunhaleandro@gmail.com / debgarcia491@gmail.com
 -- Senha: roxo&vermelho

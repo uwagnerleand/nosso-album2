@@ -241,6 +241,72 @@ export interface DashboardStats {
   }
 }
 
+export interface PartnerProfile {
+  id: string
+  email: string
+  nome_completo: string | null
+  como_gosta_de_ser_chamado: string | null
+  data_nascimento: string | null
+  cidade_nasceu: string | null
+  quem_faz_parte_familia: string | null
+  relacao_com_familia: string | null
+  pessoas_importantes_vida: string | null
+  melhor_lembranca_infancia: string | null
+  sonho_crianca: string | null
+  desenho_brincadeira_favorita: string | null
+  medo_crianca: string | null
+  tres_qualidades: string | null
+  tres_defeitos: string | null
+  maior_medo_atualmente: string | null
+  o_que_mais_irrita: string | null
+  o_que_mais_deixa_feliz: string | null
+  como_gosta_resolver_conflitos: string | null
+  cor_favorita: string | null
+  comida_favorita: string | null
+  bebida_favorita: string | null
+  musica_favorita: string | null
+  artista_banda_favorita: string | null
+  filme_favorito: string | null
+  serie_favorita: string | null
+  anime_favorito: string | null
+  livro_favorito: string | null
+  jogo_favorito: string | null
+  hobby_tempo_livre: string | null
+  esporte_favorito: string | null
+  talento_habilidade: string | null
+  maior_sonho: string | null
+  lugar_deseja_conhecer: string | null
+  objetivo_proximos_anos: string | null
+  linguagem_amor: string | null
+  como_demonstra_carinho: string | null
+  como_gosta_receber_carinho: string | null
+  nunca_pode_faltar_relacionamento: string | null
+  o_que_considera_traicao: string | null
+  encontro_perfeito: string | null
+  planos_futuro: string | null
+  rotina: string | null
+  dorme_cedo_ou_tarde: string | null
+  cafe_ou_cha: string | null
+  doce_ou_salgado: string | null
+  praia_ou_montanha: string | null
+  calor_ou_frio: string | null
+  animal_favorito: string | null
+  flor_favorita: string | null
+  perfume_favorito: string | null
+  maior_vergonha: string | null
+  maior_conquista: string | null
+  maior_arrependimento: string | null
+  algo_quase_ninguem_sabe: string | null
+  primeira_impressao_parceiro: string | null
+  momento_favorito_casal: string | null
+  o_que_mais_gosta_em_mim: string | null
+  gostaria_melhorar_casal: string | null
+  sonho_realizar_com_parceiro: string | null
+  avatar_url: string | null
+  created_at: string
+  updated_at: string
+}
+
 export type MemoryCategory =
   | 'geral'
   | 'namoro'
