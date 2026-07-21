@@ -45,7 +45,6 @@ export function Sidebar() {
   const router = useRouter()
 
   function handleLogout() {
-    // Limpa a sessão local
     document.cookie = 'nosso-album-session=; path=/; max-age=0'
     localStorage.removeItem('nosso-album-session')
     toast.success('Até logo! 👋')
@@ -65,7 +64,7 @@ export function Sidebar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-30 lg:hidden backdrop-blur-sm"
+            className="fixed inset-0 bg-black/60 z-30 lg:hidden backdrop-blur-md"
             onClick={toggleSidebar}
           />
         )}
@@ -78,7 +77,7 @@ export function Sidebar() {
         transition={{ duration: 0.3, ease: 'easeInOut' }}
         className={cn(
           'fixed left-0 top-0 h-full z-40 flex flex-col',
-          'glass border-r border-border/50',
+          'glass border-r border-pink-500/20 shadow-xl shadow-purple-950/20',
           'overflow-hidden',
           !sidebarOpen && 'lg:w-[72px]',
           sidebarOpen ? 'w-64 translate-x-0' : '-translate-x-full lg:translate-x-0'
@@ -86,26 +85,28 @@ export function Sidebar() {
         style={{ translateX: undefined }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border/50 shrink-0">
+        <div className="flex items-center justify-between p-4 border-b border-pink-500/20 shrink-0">
           <AnimatePresence mode="wait">
             {sidebarOpen && (
               <motion.div
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2.5"
               >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose-500 to-purple-500 flex items-center justify-center shrink-0">
-                  <Heart className="w-4 h-4 text-white fill-white" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-500 via-rose-500 to-purple-600 flex items-center justify-center shrink-0 shadow-md shadow-pink-500/30">
+                  <Heart className="w-5 h-5 text-white fill-white animate-pulse" />
                 </div>
-                <span className="font-bold text-lg gradient-text whitespace-nowrap">Nosso Álbum</span>
+                <span className="font-bold text-lg gradient-text whitespace-nowrap tracking-wide">
+                  Nosso Álbum
+                </span>
               </motion.div>
             )}
           </AnimatePresence>
 
           {!sidebarOpen && (
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose-500 to-purple-500 flex items-center justify-center mx-auto">
-              <Heart className="w-4 h-4 text-white fill-white" />
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-500 via-rose-500 to-purple-600 flex items-center justify-center mx-auto shadow-md shadow-pink-500/30">
+              <Heart className="w-5 h-5 text-white fill-white" />
             </div>
           )}
 
@@ -113,24 +114,24 @@ export function Sidebar() {
             onClick={toggleSidebar}
             className={cn(
               'hidden lg:flex items-center justify-center w-6 h-6 rounded-full',
-              'glass hover:bg-white/10 transition-colors text-muted-foreground hover:text-foreground',
-              !sidebarOpen && 'absolute -right-3 top-6 w-6 h-6 bg-card border border-border'
+              'glass hover:bg-pink-500/20 transition-colors text-muted-foreground hover:text-pink-400',
+              !sidebarOpen && 'absolute -right-3 top-6 w-6 h-6 bg-background border border-pink-500/30 shadow-md'
             )}
           >
-            {sidebarOpen ? <ChevronLeft className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+            {sidebarOpen ? <ChevronLeft className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
           </button>
 
           {/* Mobile close */}
           <button
             onClick={toggleSidebar}
-            className="lg:hidden text-muted-foreground hover:text-foreground"
+            className="lg:hidden text-muted-foreground hover:text-pink-400"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Nav items */}
-        <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
+        <nav className="flex-1 overflow-y-auto py-3 px-2.5 space-y-1">
           {navItems.map(({ href, label, icon: Icon }) => {
             const active = pathname === href
             return (
@@ -141,19 +142,19 @@ export function Sidebar() {
                   className={cn(
                     'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 cursor-pointer group',
                     active
-                      ? 'bg-gradient-to-r from-rose-500/20 to-purple-500/10 text-rose-400 border border-rose-500/20'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+                      ? 'bg-gradient-to-r from-pink-500/20 via-fuchsia-500/15 to-purple-600/20 text-pink-400 border border-pink-500/30 shadow-sm shadow-pink-500/10'
+                      : 'text-muted-foreground hover:text-pink-300 hover:bg-pink-500/10'
                   )}
                   title={!sidebarOpen ? label : undefined}
                 >
-                  <Icon className={cn('w-5 h-5 shrink-0', active && 'text-rose-400')} />
+                  <Icon className={cn('w-5 h-5 shrink-0 transition-colors', active ? 'text-pink-400' : 'group-hover:text-pink-400')} />
                   <AnimatePresence mode="wait">
                     {sidebarOpen && (
                       <motion.span
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="text-sm font-medium whitespace-nowrap"
+                        className={cn("text-sm whitespace-nowrap", active ? "font-bold text-pink-300" : "font-medium")}
                       >
                         {label}
                       </motion.span>
@@ -166,7 +167,7 @@ export function Sidebar() {
         </nav>
 
         {/* Bottom section */}
-        <div className="border-t border-border/50 p-2 space-y-0.5 shrink-0">
+        <div className="border-t border-pink-500/20 p-2.5 space-y-1 shrink-0 bg-background/30 backdrop-blur-md">
           {bottomItems.map(({ href, label, icon: Icon }) => {
             const active = pathname === href
             return (
@@ -176,8 +177,8 @@ export function Sidebar() {
                   className={cn(
                     'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 cursor-pointer',
                     active
-                      ? 'bg-gradient-to-r from-rose-500/20 to-purple-500/10 text-rose-400'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+                      ? 'bg-gradient-to-r from-pink-500/20 to-purple-600/20 text-pink-400 border border-pink-500/30'
+                      : 'text-muted-foreground hover:text-pink-300 hover:bg-pink-500/10'
                   )}
                   title={!sidebarOpen ? label : undefined}
                 >
@@ -189,20 +190,20 @@ export function Sidebar() {
           })}
 
           {/* User + logout */}
-          <div className="pt-2 border-t border-border/50 mt-2">
+          <div className="pt-2 border-t border-pink-500/20 mt-2">
             {sidebarOpen ? (
-              <div className="flex items-center gap-2 px-3 py-2">
-                <Avatar className="w-8 h-8 shrink-0">
+              <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-pink-500/5 border border-pink-500/10">
+                <Avatar className="w-8 h-8 shrink-0 ring-2 ring-pink-500/30">
                   <AvatarImage src={user?.avatar_url ?? undefined} />
-                  <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+                  <AvatarFallback className="text-xs bg-gradient-to-br from-pink-500 to-purple-600 text-white font-bold">{initials}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{user?.nome ?? user?.email}</p>
+                  <p className="text-sm font-semibold truncate text-foreground">{user?.nome ?? user?.email}</p>
                   <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="text-muted-foreground hover:text-destructive transition-colors"
+                  className="text-muted-foreground hover:text-destructive transition-colors p-1 hover:bg-destructive/10 rounded-lg"
                   title="Sair"
                 >
                   <LogOut className="w-4 h-4" />
@@ -211,7 +212,7 @@ export function Sidebar() {
             ) : (
               <button
                 onClick={handleLogout}
-                className="flex items-center justify-center w-full px-3 py-2.5 rounded-xl text-muted-foreground hover:text-destructive hover:bg-white/5 transition-all"
+                className="flex items-center justify-center w-full px-3 py-2.5 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
                 title="Sair"
               >
                 <LogOut className="w-5 h-5" />

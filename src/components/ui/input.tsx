@@ -12,18 +12,18 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       return (
         <div className="relative flex items-center">
           {icon && (
-            <span className="absolute left-3 text-muted-foreground pointer-events-none">
+            <span className="absolute left-3 text-pink-400/70 pointer-events-none transition-colors group-focus-within:text-pink-400">
               {icon}
             </span>
           )}
           <input
             type={type}
             className={cn(
-              'flex h-11 w-full rounded-xl border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background transition-all',
-              'placeholder:text-muted-foreground',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary',
+              'flex h-11 w-full rounded-xl border border-pink-500/20 bg-background/60 px-3 py-2 text-sm ring-offset-background transition-all duration-200',
+              'placeholder:text-muted-foreground/60',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500/50 focus-visible:border-pink-500 hover:border-pink-500/40',
               'disabled:cursor-not-allowed disabled:opacity-50',
-              'backdrop-filter backdrop-blur-sm',
+              'backdrop-filter backdrop-blur-md shadow-inner',
               icon && 'pl-10',
               iconRight && 'pr-10',
               className
@@ -32,7 +32,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {iconRight && (
-            <span className="absolute right-3 text-muted-foreground">
+            <span className="absolute right-3 text-pink-400/70">
               {iconRight}
             </span>
           )}
@@ -44,11 +44,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <input
         type={type}
         className={cn(
-          'flex h-11 w-full rounded-xl border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background transition-all',
-          'placeholder:text-muted-foreground',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary',
+          'flex h-11 w-full rounded-xl border border-pink-500/20 bg-background/60 px-3 py-2 text-sm ring-offset-background transition-all duration-200',
+          'placeholder:text-muted-foreground/60',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500/50 focus-visible:border-pink-500 hover:border-pink-500/40',
           'disabled:cursor-not-allowed disabled:opacity-50',
-          'backdrop-filter backdrop-blur-sm',
+          'backdrop-filter backdrop-blur-md shadow-inner',
           className
         )}
         ref={ref}
